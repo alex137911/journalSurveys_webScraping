@@ -1,9 +1,10 @@
 # Web  Scraping for Journal Surveys
 Work for Dr. Jeremy Ng
 
+### Project Goal
 Scrape names of Editors-in-Chief for different scientific journals
 
-\### Project Status
+### Project Status
 - [x] Scrape journal URLS
 - [ ] Scrape names of Editors-in-Chief
 - [ ] Find emails of Editors-in-Chief
