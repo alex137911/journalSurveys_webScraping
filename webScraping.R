@@ -105,6 +105,9 @@ for(i in 1:nrow(journalName_df)){
   }) # end of error function
 }
 
+# Remove accents from editor names
+journalName_df <- journalName_df[, chiefEditor := stri_trans_general(str = chiefEditor, id = "Latin-ASCII")]
+
 # Output directory
 outpath <- "C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data"
 outDir <- sprintf("%s/Data/webScraping.R", dirname(outpath))
