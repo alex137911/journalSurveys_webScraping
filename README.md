@@ -1,5 +1,5 @@
 # Web  Scraping for Journal Surveys
-Work for Dr. Jeremy Ng
+Work for Dr. Jeremy Y. Ng
 
 ### Project Goal
 Scrape names of Editors-in-Chief for different scientific journals
