@@ -2,7 +2,7 @@
 Work for Dr. Jeremy Y. Ng
 
 ### Project Goal
-Scrape names of Editors-in-Chief for different scientific journals
+Scrape emails of Editors-in-Chief for different scientific journals
 
 ### Project Status
 - [x] Scrape journal URLS
