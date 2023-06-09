@@ -9,6 +9,7 @@ suppressMessages(library(dplyr))
 suppressMessages(library(stringi))
 suppressMessages(library(data.table))
 suppressMessages(library(stringr))
+suppressMessages(library(tidyr))
 
 # -------------------------------------------------------------------
 # Specify the URL of the website to scrape
@@ -33,7 +34,6 @@ removeLast_n <- 7
 journalName_df$journalName <- str_trim(journalName_df$journalName, side = "right")
 journalName_df$journalName <- substr(journalName_df$journalName, 1, 
                                      nchar(journalName_df$journalName) - removeLast_n)
-  
 # Remove parentheses from journal titles
 journalName_df$journalName <- gsub("\\(|\\)", "", journalName_df$journalName)
 
@@ -74,6 +74,7 @@ for(i in 1:nrow(journalName_df)){
 journalName_df$chiefEditor <- NA
 
 for(i in 1:nrow(journalName_df)){
+  message(sprintf("%i of %i", i, nrow(journalName_df)))
   editorURL <- journalName_df$journalURL[i]
   
   # Check if the URL is missing the protocol and prepend "https://"
@@ -90,8 +91,8 @@ for(i in 1:nrow(journalName_df)){
     editorName <- html_text(editorNode)
     
     # Check if "editorName" is empty (e.g., if journal is no longer in print)
-    if(editorName != "") {
-      journalName_df$chiefEditor[i] <- editorName
+    if(length(editorName) > 0) {
+      journalName_df$chiefEditor[i] <- list(editorName)
     } 
     else {
       journalName_df$chiefEditor[i] <- "NA"
@@ -105,6 +106,12 @@ for(i in 1:nrow(journalName_df)){
   }) # end of error function
 }
 
+# Unlist the chiefEditor column
+journalName_df <- unnest(journalName_df, chiefEditor)
+
+# Store as data table (necessary for following operation)
+journalName_df <- as.data.table(journalName_df)
+
 # Remove accents from editor names
 journalName_df <- journalName_df[, chiefEditor := stri_trans_general(str = chiefEditor, id = "Latin-ASCII")]
 
@@ -115,11 +122,3 @@ if(!file.exists(outDir)) dir.create(outDir)
 
 write.table(journalName_df, file = sprintf("%s/scienceDirect_chiefEditor.tsv", outDir),
             sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-
-
-# # Pull editor
-# editorNode <- html_nodes(editorHTML, ".js-editor-name")
-# editorName <- html_text(editorNode)
-# 
-# print(editorName)
-# print(journalName_df$journalURL)
