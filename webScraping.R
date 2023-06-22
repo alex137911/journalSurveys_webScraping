@@ -10,6 +10,7 @@ suppressMessages(library(stringi))
 suppressMessages(library(data.table))
 suppressMessages(library(stringr))
 suppressMessages(library(tidyr))
+suppressMessages(library(rentrez))
 
 # -------------------------------------------------------------------
 # Specify the URL of the website to scrape
@@ -95,7 +96,7 @@ for(i in 1:nrow(journalName_df)){
       journalName_df$chiefEditor[i] <- list(editorName)
     } 
     else {
-      journalName_df$chiefEditor[i] <- "NA"
+      journalName_df$chiefEditor[i] <- NA
     }
   }, error = function(e){
     
@@ -122,3 +123,28 @@ if(!file.exists(outDir)) dir.create(outDir)
 
 write.table(journalName_df, file = sprintf("%s/scienceDirect_chiefEditor.tsv", outDir),
             sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# -------------------------------------------------------------------
+# Drop NA rows
+journalName_df <- journalName_df %>% drop_na(chiefEditor)
+
+# Remove text after the first comma
+journalName_df$modifiedName <- NA
+journalName_df$modifiedName <- sub(",.*", "", journalName_df$chiefEditor)
+
+# Iterate through the Editor-in-Chief names
+for (i in 1:nrow(journalName_df)) {
+  editorName <- journalName_df$modifiedName[i]
+  
+  # Perform PubMed search
+  search_term <- paste0(editorName)
+  
+  # Search PubMed
+  search_results <- entrez_search(db = "pubmed", term = search_term, retmax = 10)
+  
+  # Print the search results
+  cat("Editor:", editorName, "\n")
+  cat("Search Results:\n")
+  cat(paste(search_results$ids, collapse = ", "), "\n\n")
+}
+
