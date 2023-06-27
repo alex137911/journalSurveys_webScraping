@@ -10,7 +10,8 @@ suppressMessages(library(stringi))
 suppressMessages(library(data.table))
 suppressMessages(library(stringr))
 suppressMessages(library(tidyr))
-suppressMessages(library(rentrez))
+
+# suppressMessages(library(rentrez))
 
 # -------------------------------------------------------------------
 # Specify the URL of the website to scrape
@@ -121,10 +122,6 @@ outpath <- "C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research I
 outDir <- sprintf("%s/Data/webScraping.R", dirname(outpath))
 if(!file.exists(outDir)) dir.create(outDir)
 
-write.table(journalName_df, file = sprintf("%s/scienceDirect_chiefEditor.tsv", outDir),
-            sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-
-# -------------------------------------------------------------------
 # Drop NA rows
 journalName_df <- journalName_df %>% drop_na(chiefEditor)
 
@@ -132,19 +129,50 @@ journalName_df <- journalName_df %>% drop_na(chiefEditor)
 journalName_df$modifiedName <- NA
 journalName_df$modifiedName <- sub(",.*", "", journalName_df$chiefEditor)
 
-# Iterate through the Editor-in-Chief names
-for (i in 1:nrow(journalName_df)) {
-  editorName <- journalName_df$modifiedName[i]
+# Drop titles (Dr., Professor, Prof., etc.)
+title_pattern <- "(?i)\\b(?:Dr\\.|Professor|Prof\\.)\\s"
+journalName_df$modifiedName <- gsub(title_pattern, "", journalName_df$modifiedName)
+
+write.table(journalName_df, file = sprintf("%s/scienceDirect_chiefEditor.tsv", outDir),
+            sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+
+# # Iterate through the Editor-in-Chief names
+# for (i in 1:nrow(journalName_df)) {
+#   editorName <- journalName_df$modifiedName[i]
+#   
+#   # Perform PubMed search
+#   search_term <- paste0(editorName)
+#   
+#   # Search PubMed
+#   search_results <- entrez_search(db = "pubmed", term = search_term, retmax = 10)
+#   
+#   # Print the search results
+#   cat("Editor:", editorName, "\n")
+#   cat("Search Results:\n")
+#   cat(paste(search_results$ids, collapse = ", "), "\n\n")
+# }
+
+
+
+name <- "Martha Furie"
+emails <- c("martha@gmail.com", "john@gmail.com", "marge@gmail.com")
+
+# Initialize variables to track the maximum number of matching characters and the associated email
+max_match_count <- 0
+associated_email <- ""
+
+# Iterate through each email
+for (email in emails) {
+  # Count the number of matching characters between the name and email, considering the order
+  match_count <- sum(tolower(name) == tolower(substr(email, 1, nchar(name))))
   
-  # Perform PubMed search
-  search_term <- paste0(editorName)
-  
-  # Search PubMed
-  search_results <- entrez_search(db = "pubmed", term = search_term, retmax = 10)
-  
-  # Print the search results
-  cat("Editor:", editorName, "\n")
-  cat("Search Results:\n")
-  cat(paste(search_results$ids, collapse = ", "), "\n\n")
+  # Update the associated email if it has more matching characters
+  if (match_count > max_match_count) {
+    max_match_count <- match_count
+    associated_email <- email
+  }
 }
 
+# Print the associated email
+print(associated_email)
