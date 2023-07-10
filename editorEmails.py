@@ -20,12 +20,24 @@ pd.set_option('display.width', None)  # Print without truncation
 
 print(editor_names['modifiedName'][0])
 
+# Specify the path to the Chromedriver executable
+chromedriver_path = 'C:\Program Files\chromedriver_win32\chromedriver.exe'
+
 # Create new instance of the Chrome driver
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(executable_path = chromedriver_path)
 
 # Navigate to PubMed
 driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 
 # Find search bar element
-search_bar = driver.find_element_by_id("#id_term")
-search_bar.send_keys("editor_names['modifiedName'][0]")
+search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
+
+# Enter the editor's name into the search bar
+search_bar.send_keys(editor_names['modifiedName'][0])
+search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
+search_button.click()
+
+# Wait for the search results to load
+driver.implicitly_wait(10)
+
+print(editor_names['modifiedName'][0])
