@@ -32,12 +32,40 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 # Find search bar element
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
-# Enter the editor's name into the search bar
-search_bar.send_keys(editor_names['modifiedName'][0])
-search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
-search_button.click()
+# Subset for testing
+names_subset = editor_names['modifiedName'][1:2]
+print(names_subset)
+
+for name in names_subset:
+    print(name)
+    
+    # Enter the editor's name into the search bar
+    search_bar.send_keys(name)
+    search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
+    search_button.click()
+    
+
+    
+
+# for name in editor_names['modifiedName']:
+#     print(name)
+    
+#     # Enter the editor's name into the search bar
+#     search_bar.send_keys(editor_names['modifiedName'][1])
+#     search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
+#     search_button.click()
 
 # Wait for the search results to load
 driver.implicitly_wait(10)
 
-print(editor_names['modifiedName'][0])
+
+
+
+
+
+# Expand author affiliations
+expand_button = driver.find_element('xpath', '//*[(@id = "toggle-authors")]')
+expand_button.click()
+driver.implicitly_wait(10)
+
+print(editor_names['modifiedName'][1])
