@@ -18,7 +18,7 @@ pd.set_option('display.max_rows', None)  # Print all rows
 pd.set_option('display.max_columns', None)  # Print all columns
 pd.set_option('display.width', None)  # Print without truncation
 
-print(editor_names['modifiedName'][0])
+print(editor_names['modifiedName'][2])
 
 # Specify the path to the Chromedriver executable
 chromedriver_path = 'C:\Program Files\chromedriver_win32\chromedriver.exe'
@@ -33,7 +33,7 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
 # Subset for testing
-names_subset = editor_names['modifiedName'][1:2]
+names_subset = editor_names['modifiedName'][2:3]
 print(names_subset)
 
 for name in names_subset:
