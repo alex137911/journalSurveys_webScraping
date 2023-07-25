@@ -1,4 +1,4 @@
-# Script to scrape names of editors-in-chief
+# Script to scrape names of Editors-in-Chief
 
 # Remove objects in workspace
 rm(list = ls())
@@ -10,8 +10,6 @@ suppressMessages(library(stringi))
 suppressMessages(library(data.table))
 suppressMessages(library(stringr))
 suppressMessages(library(tidyr))
-
-# suppressMessages(library(rentrez))
 
 # -------------------------------------------------------------------
 # Specify the URL of the website to scrape
