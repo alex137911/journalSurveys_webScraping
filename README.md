@@ -7,5 +7,5 @@ Scrape emails of Editors-in-Chief for different scientific journals
 ### Project Status
 - [x] Scrape journal URLS
 - [x] Scrape names of Editors-in-Chief
-- [ ] Find emails of Editors-in-Chief through PubMed search
+- [x] Find emails of Editors-in-Chief through PubMed search
 - [ ] Expand to journals outside of Science Direct 
