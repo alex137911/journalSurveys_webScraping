@@ -11,7 +11,7 @@ Scrape emails of Editors-in-Chief for different scientific journals
 - [ ] Expand to journals outside of Science Direct 
 
 #### Environment Setup
-<mark style="background: #BBFABBA6;">Using Chrome WebDriver</mark>
+<span style="background: #BBFABBA6;">Using Chrome WebDriver</span>
 1. Download Chromedriver: Visit the official Chromedriver download page (https://sites.google.com/a/chromium.org/chromedriver/downloads) and download the appropriate version of Chromedriver that matches your Chrome browser version.
 
 2. Extract Chromedriver: Extract the downloaded Chromedriver executable to a location on your computer.
