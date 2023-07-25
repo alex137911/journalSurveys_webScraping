@@ -9,7 +9,7 @@ Scrape emails of Editors-in-Chief for different scientific journals
 - [x] Scrape names of Editors-in-Chief
 - [x] Find emails of Editors-in-Chief through PubMed search
 - [ ] Expand to journals outside of Science Direct 
-
+---
 #### Environment Setup
 <ins>Using Chrome WebDriver</ins>
 1. Download Chromedriver: Visit the official Chromedriver download page (https://sites.google.com/a/chromium.org/chromedriver/downloads) and download the appropriate version of Chromedriver that matches your Chrome browser version.
