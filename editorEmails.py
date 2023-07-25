@@ -6,6 +6,7 @@ from fuzzywuzzy import fuzz
 
 import pandas as pd
 import os
+import re
 
 # -------------------------------------------------------------------
 # Set working directory
@@ -75,22 +76,30 @@ for name in names_subset:
     # Extract the text content of the element
     author_affiliations_text = author_affiliations.text
 
-    # Iterate through each email address and find the one with the highest match rate
-    for email_address in author_affiliations_text(". Electronic address: "):
-        
+    # Use regular expressions to extract email addresses (i.e. text containing "@")
+    email_pattern = re.compile(r"[^\s]+@[^\s]+")
+    email_addresses = re.findall(email_pattern, author_affiliations_text)
+
+    # Initialize list to store email addresses containing best match
+    email_match = []
+
+    # Loop through the email addresses to find those associated with "Peter G. Szilagyi"
+    for email in email_addresses:
         # Extract the name from the email address (everything before the "@")
-        name_in_email = email_address.split("@")[0]
+        name_in_email = email.split("@")[0].strip()
+        print(name_in_email)
 
         # Calculate the match rate of characters between the name and the email address
-        match_rate = calculate_match("Peter G. Szilagyi", name_in_email)
+        match_rate = calculate_match(name, name_in_email)
+        print(match_rate)
 
         # Update the best match if the current match rate is higher
         if match_rate > best_match_rate:
             best_match_rate = match_rate
-            best_match_email = email_address
+            best_match_email = email
 
-        print("Best match email address:", best_match_email)
-
+    # Print the email address
+    print("Email addresses for Editor-in-Chief:", best_match_email)
 
 
     
