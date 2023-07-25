@@ -5,6 +5,7 @@ from selenium.common.exceptions import NoSuchElementException
 from fuzzywuzzy import fuzz
 
 import pandas as pd
+import time
 import os
 import re
 
@@ -27,6 +28,9 @@ pd.set_option('display.width', None)  # Print without truncation
 # Initialize empty column to hold email addresses
 editor_names['editorEmail'] = None
 
+# Initialize empty column to hold match score (higher score is better)
+editor_names['confidenceScore'] = None
+
 # -------------------------------------------------------------------
 # Function to calculate the match rate of characters in two strings
 def calculate_match(name, email):
@@ -36,12 +40,34 @@ def calculate_match(name, email):
 best_match_rate = 0
 best_match_email = ""
 
+# Function to relocate the search bar element
+# Prevent stale element reference exception
+def find_search_bar():
+    while True:
+        try:
+            return driver.find_element('xpath','//*[(@id = "id_term")]')
+        except NoSuchElementException:
+            time.sleep(1)  # Wait for 1 second before retrying
+
+# Function to clear the search bar
+# search_bar.clear() is not working
+def clear_search_bar():
+    search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
+    search_bar.send_keys(Keys.CONTROL + "a")  # Select all text in the search bar
+    driver.implicitly_wait(10)
+    search_bar.send_keys(Keys.DELETE)  # Delete the selected text
+    driver.implicitly_wait(10)
+
 # -------------------------------------------------------------------
 # Specify the path to the Chromedriver executable
 chromedriver_path = 'C:\Program Files\chromedriver_win32\chromedriver.exe'
 
 # Create new instance of the Chrome driver
 driver = webdriver.Chrome(executable_path = chromedriver_path)
+
+# Maximize the browser window to make it fullscreen
+# Can sometimes help reduce errors from popups blocking elements
+driver.maximize_window()
 
 # Navigate to PubMed
 driver.get("https://pubmed.ncbi.nlm.nih.gov/")
@@ -50,16 +76,28 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
 # Subset for testing
-# names_subset = editor_names['modifiedName'][0:1]
+# names_subset = editor_names['modifiedName'][0:3]
 # print(names_subset)
+
+# editor_names['modifiedName']
 
 for name in editor_names['modifiedName']:
     print(name)
+
+    # Reset the best match variables
+    best_match_rate = 0
+    best_match_email = ""
     
+    # Clear the search bar for the next iteration
+    search_bar = find_search_bar()
+    clear_search_bar()
+
     # Enter the editor's name into the search bar
     search_bar.send_keys(name)
     search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
-    search_button.click()
+    
+    # search_button.click()
+    driver.execute_script("arguments[0].click();", search_button)
     driver.implicitly_wait(10)
 
     # Check to see if query landed on search page (to deal with edge case where no/one article is found)
@@ -75,8 +113,13 @@ for name in editor_names['modifiedName']:
             # Fetch the titles again for the next iteration
             article_titles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "docsum-title", " " ))]')
             
+            # Scroll the element (i.e., the journal article) into view
+            # Necessary to prevent popups from blocking the element ("intercepts" the click)
+            driver.execute_script("arguments[0].scrollIntoView();", article_titles[i])
+           
             # Click on article title
-            article_titles[i].click()
+            # article_titles[i].click()
+            driver.execute_script("arguments[0].click();", article_titles[i])
             driver.implicitly_wait(10)
 
             # Expand author affiliations to find emails (if possible, otherwise skip article)
@@ -121,19 +164,24 @@ for name in editor_names['modifiedName']:
                         best_match_email = email
 
                 # Print the email address
-                print("Email addresses for Editor-in-Chief:", best_match_email)
+                print("Email address for Editor-in-Chief:", best_match_email)
 
                 # Add the email address to the DataFrame
                 editor_names.loc[editor_names['modifiedName'] == name, 'editorEmail'] = str(best_match_email)
 
+                # Add the match rate to the DataFrame
+                editor_names.loc[editor_names['modifiedName'] == name, 'confidenceScore'] = best_match_rate
+
                 # Go back to the search results page
                 driver.back()
+                driver.implicitly_wait(10)
                 
             # If the author affiliations are not found, skip to the next article     
             except NoSuchElementException:
                 print(f"Author affiliations not found for article {i + 1}. Skipping to the next article.")
                 # Go back to the search results page
                 driver.back()
+                driver.implicitly_wait(10)
                 continue
 
     except NoSuchElementException:
@@ -144,4 +192,18 @@ for name in editor_names['modifiedName']:
         
         # Find search bar element
         search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
+        
+        # Clear the search bar for the next iteration
+        search_bar.clear()
         continue
+
+# -------------------------------------------------------------------
+# Close the browser
+driver.close()
+
+# Create direcotry to store output
+if not os.path.exists("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py"):
+    os.mkdir("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py")
+
+# Save the DataFrame as a .csv file to directory
+editor_names.to_csv("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py/scienceDirect_editorEmails.csv", index = False)
