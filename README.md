@@ -15,7 +15,7 @@ The work to scrape the email addresses of the editors are broken into two script
 1. webScraping.R
 2. editorEmails.py
 
-Currently, webScraping.R only supports is only functional for journals published by ScienceDirect.
+Currently, *webScraping.R* only supports journals published by ScienceDirect.
 
 #
 #### Environment Setup: webScraping.R
