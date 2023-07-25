@@ -22,7 +22,10 @@ pd.set_option('display.max_rows', None)  # Print all rows
 pd.set_option('display.max_columns', None)  # Print all columns
 pd.set_option('display.width', None)  # Print without truncation
 
-print(editor_names['modifiedName'][2])
+# print(editor_names['modifiedName'][2])
+
+# Initialize empty column to hold email addresses
+editor_names['editorEmail'] = None
 
 # -------------------------------------------------------------------
 # Function to calculate the match rate of characters in two strings
@@ -47,10 +50,10 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
 # Subset for testing
-names_subset = editor_names['modifiedName'][2:3]
-print(names_subset)
+# names_subset = editor_names['modifiedName'][2:3]
+# print(names_subset)
 
-for name in names_subset:
+for name in editor_names['modifiedName']:
     print(name)
     
     # Enter the editor's name into the search bar
@@ -115,6 +118,9 @@ for name in names_subset:
 
             # Print the email address
             print("Email addresses for Editor-in-Chief:", best_match_email)
+
+            # Add the email address to the DataFrame
+            editor_names.loc[editor_names['modifiedName'] == name, 'editorEmail'] = str(best_match_email)
 
             # Go back to the search results page
             driver.back()
