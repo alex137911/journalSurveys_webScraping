@@ -50,7 +50,7 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
 # Subset for testing
-# names_subset = editor_names['modifiedName'][2:3]
+# names_subset = editor_names['modifiedName'][0:1]
 # print(names_subset)
 
 for name in editor_names['modifiedName']:
@@ -61,72 +61,87 @@ for name in editor_names['modifiedName']:
     search_button = driver.find_element('xpath','//*[contains(concat( " ", @class, " " ), concat( " ", "search-btn", " " ))]')
     search_button.click()
     driver.implicitly_wait(10)
-    
-    # Find all article titles on the page
-    article_titles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "docsum-title", " " ))]')
-    num_articles = min(len(article_titles), 10)
 
-    # Loop through first 10 articles (or the number of articles if less than 10)
-    for i in range(num_articles):
-        # Fetch the titles again for the next iteration
+    # Check to see if query landed on search page (to deal with edge case where no/one article is found)
+    try:
+        search_results = driver.find_element('xpath','//*[(@id = "search-results")]')
+
+        # Find all article titles on the page
         article_titles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "docsum-title", " " ))]')
-        
-        # Click on article title
-        article_titles[i].click()
-        driver.implicitly_wait(10)
+        num_articles = min(len(article_titles), 10)
 
-        # Expand author affiliations to find emails (if possible, otherwise skip article)
-        try:
-            expand_button = driver.find_element('xpath', '//*[(@id = "toggle-authors")]')
-            expand_button.click()
+        # Loop through first 10 articles (or the number of articles if less than 10)
+        for i in range(num_articles):
+            # Fetch the titles again for the next iteration
+            article_titles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "docsum-title", " " ))]')
+            
+            # Click on article title
+            article_titles[i].click()
             driver.implicitly_wait(10)
 
-            # Find the element containing author affiliations
-            author_affiliations = driver.find_element('xpath', '//*[contains(concat( " ", @class, " " ), concat( " ", "affiliations", " " ))]')
+            # Expand author affiliations to find emails (if possible, otherwise skip article)
+            try:
+                expand_button = driver.find_element('xpath', '//*[(@id = "toggle-authors")]')
+                expand_button.click()
+                driver.implicitly_wait(10)
 
-            # Extract the text content of the element
-            author_affiliations_text = author_affiliations.text
+                # Find the element containing author affiliations
+                author_affiliations = driver.find_element('xpath', '//*[contains(concat( " ", @class, " " ), concat( " ", "affiliations", " " ))]')
 
-            # Use regular expressions to extract email addresses (i.e. text containing "@")
-            email_pattern = re.compile(r"[^\s]+@[^\s]+")
-            email_addresses = re.findall(email_pattern, author_affiliations_text)
+                # Extract the text content of the element
+                author_affiliations_text = author_affiliations.text
 
-            # Check if email_addresses is empty
-            if not email_addresses:
-                print("No email address found for:", name)
-                # Skip to the next article
+                # Use regular expressions to extract email addresses (i.e. text containing "@")
+                email_pattern = re.compile(r"[^\s]+@[^\s]+")
+                email_addresses = re.findall(email_pattern, author_affiliations_text)
+
+                # Check if email_addresses is empty
+                if not email_addresses:
+                    print("No email address found for:", name)
+                    # Skip to the next article
+                    driver.back()
+                    continue
+
+                # Initialize list to store email addresses containing best match
+                email_match = []
+
+                # Loop through the email addresses to find those associated with "Peter G. Szilagyi"
+                for email in email_addresses:
+                    # Extract the name from the email address (everything before the "@")
+                    name_in_email = email.split("@")[0].strip()
+                    print(name_in_email)
+
+                    # Calculate the match rate of characters between the name and the email address
+                    match_rate = calculate_match(name, name_in_email)
+                    print(match_rate)
+
+                    # Update the best match if the current match rate is higher
+                    if match_rate > best_match_rate:
+                        best_match_rate = match_rate
+                        best_match_email = email
+
+                # Print the email address
+                print("Email addresses for Editor-in-Chief:", best_match_email)
+
+                # Add the email address to the DataFrame
+                editor_names.loc[editor_names['modifiedName'] == name, 'editorEmail'] = str(best_match_email)
+
+                # Go back to the search results page
+                driver.back()
+                
+            # If the author affiliations are not found, skip to the next article     
+            except NoSuchElementException:
+                print(f"Author affiliations not found for article {i + 1}. Skipping to the next article.")
+                # Go back to the search results page
                 driver.back()
                 continue
 
-            # Initialize list to store email addresses containing best match
-            email_match = []
+    except NoSuchElementException:
+        print(f"Search result for editor {name} failed. Skipping to the next editor.")
 
-            # Loop through the email addresses to find those associated with "Peter G. Szilagyi"
-            for email in email_addresses:
-                # Extract the name from the email address (everything before the "@")
-                name_in_email = email.split("@")[0].strip()
-                print(name_in_email)
-
-                # Calculate the match rate of characters between the name and the email address
-                match_rate = calculate_match(name, name_in_email)
-                print(match_rate)
-
-                # Update the best match if the current match rate is higher
-                if match_rate > best_match_rate:
-                    best_match_rate = match_rate
-                    best_match_email = email
-
-            # Print the email address
-            print("Email addresses for Editor-in-Chief:", best_match_email)
-
-            # Add the email address to the DataFrame
-            editor_names.loc[editor_names['modifiedName'] == name, 'editorEmail'] = str(best_match_email)
-
-            # Go back to the search results page
-            driver.back()
-            
-        except NoSuchElementException:
-            print(f"Author affiliations not found for article {i + 1}. Skipping to the next article.")
-            # Go back to the search results page
-            driver.back()
-            continue
+        # Navigate back to PubMed
+        driver.get("https://pubmed.ncbi.nlm.nih.gov/")
+        
+        # Find search bar element
+        search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
+        continue
