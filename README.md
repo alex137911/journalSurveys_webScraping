@@ -10,7 +10,39 @@ Scrape emails of Editors-in-Chief for different scientific journals
 - [x] Find emails of Editors-in-Chief through PubMed search
 - [ ] Expand to journals outside of Science Direct 
 ---
-#### Environment Setup
+### About
+The work to scrape the email addresses of the editors are broken into two scripts and must be run in the following order:
+1. webScraping.R
+2. editorEmails.py
+
+Currently, webScraping.R only supports is only functional for journals published by ScienceDirect.
+
+#
+#### Environment Setup: webScraping.R
+This script is used to retrieve the HTML content of the different ScienceDirect journals and scrape the name(s) of the Editor(s)-in-Chief. Note that in order to retrieve the journal URLs as well as successfully search through PubMed, titles and names must be converted to the "standard" English alphabet. The preprocessing done in this script may not cover all cases. 
+
+This script was developed using R version 4.2.2 (2022-10-31 ucrt) -- "Innocent and Trusting", and the following packages are used and must be intalled:
+1. rvest
+2. dplyr
+3. stringi
+4. data.table
+5. stringr
+6. tidyr
+
+The final output of this script is a .tsv file including the **journal title** ("journalName"), the **journal URL** ("journalURL"), the **editor names** ("chiefEditor") and the **modified name** ("modifiedName") with titles and designations removed.
+
+#
+#### Environment Setup: editorEmails.py
+Once the *webScraping.R* script has been run to produce the .tsv file, this script pulls the names of the editors to search through PubMed and find the editors' emails (through their publicly available articles). The matching algorithm to retrieve the correct email for the corresponding Editor-in-Chief works as follows:
+
+1. The function, *calculate_match()*, takes two text inputs: name and email.
+2. The function converts both the name and email to lowercase letters. This is done to make sure the comparison is not case-sensitive. For example, "John" and "john" would be considered the same.
+3. The function then compares the two texts, the name and the email, and calculates a number called the "matching rate" between them. This number represents how similar the name is to the email.
+4. The higher the "matching rate," the more similar the name and email are to each other. If the matching rate is 100, it means the name and email are exactly the same. If it's 0, it means they are completely different.
+5. The function then returns this matching rate as the result.
+
+**Please note!** The code only iterates through a maximum of 10 articles (which can be changed by the user if necessary), and as such, **may not identify the correct email address with 100% accuracy** (or in some cases, will not find an email address at all). A confidence score (i.e., the matching rate) is provided in the final column of the .csv output, where a higher score (maximum 100) indicates a better match between the email address and the editor's name. If possible, it is strongly encouraged that a manual check is performed.
+
 <ins>Using Chrome WebDriver</ins>
 1. Download Chromedriver: Visit the official Chromedriver download page (https://sites.google.com/a/chromium.org/chromedriver/downloads) and download the appropriate version of Chromedriver that matches your Chrome browser version.
 
