@@ -20,13 +20,8 @@ Scrape emails of Editors-in-Chief for different scientific journals
 
    | Operating System | Steps |
    | --- | --- |
-   | Windows | 1. Open the Start menu, search for "Environment Variables," and select "Edit the system environment variables." 
-               2. In the System Properties window, click the "Environment Variables" button. In the "System Variables" section, select the "Path" variable, and click the "Edit" button. 
-               3. Add the path to the Chromedriver executable (e.g., C:\path\to\chromedriver) to the list of paths. 
-               4. Click "OK" to save the changes. |
-   | macOS/Linux | 1. Open a terminal and edit the .bash_profile or .bashrc file in your home directory using a text editor (e.g., nano ~/.bash_profile). 
-                   2. Add the following line to the file: `export PATH=$PATH:/path/to/chromedriver` (replace `/path/to/chromedriver` with the actual path to the Chromedriver executable). 
-                   3. Save the file and then run `source ~/.bash_profile` or `source ~/.bashrc` to apply the changes. |
+   | Windows | 1. Open the Start menu, search for "Environment Variables," and select "Edit the system environment variables." 2. In the System Properties window, click the "Environment Variables" button. In the "System Variables" section, select the "Path" variable, and click the "Edit" button. 3. Add the path to the Chromedriver executable (e.g., C:\path\to\chromedriver) to the list of paths. 4. Click "OK" to save the changes. |
+   | macOS/Linux | 1. Open a terminal and edit the .bash_profile or .bashrc file in your home directory using a text editor (e.g., nano ~/.bash_profile). 2. Add the following line to the file: `export PATH=$PATH:/path/to/chromedriver` (replace `/path/to/chromedriver` with the actual path to the Chromedriver executable). 3. Save the file and then run `source ~/.bash_profile` or `source ~/.bashrc` to apply the changes. |
 
 
 4. Verify installation: Open a new terminal or command prompt and run chromedriver command to verify if Chromedriver is now accessible from the system's PATH. If it prints version information without any errors, the installation was successful. 
