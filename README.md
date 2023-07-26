@@ -35,11 +35,13 @@ The final output of this script is a .tsv file including the **journal title** (
 #### Environment Setup: editorEmails.py
 Once the *webScraping.R* script has been run to produce the .tsv file, this script pulls the names of the editors to search through PubMed and find the editors' emails (through their publicly available articles). The matching algorithm to retrieve the correct email for the corresponding Editor-in-Chief works as follows:
 
-1. The function, *calculate_match()*, takes two text inputs: name and email.
-2. The function converts both the name and email to lowercase letters. This is done to make sure the comparison is not case-sensitive. For example, "John" and "john" would be considered the same.
-3. The function then compares the two texts, the name and the email, and calculates a number called the "matching rate" between them. This number represents how similar the name is to the email.
+1. The function, *calculate_match()*, takes two text inputs: the name, and the name derived from the email (i.e., all characters before the @ in the email address).
+2. The function converts both the name and the name from the email to lowercase letters. This is done to make sure the comparison is not case-sensitive. For example, "John" and "john" would be considered the same.
+3. The function then compares the two texts and calculates a number called the "matching rate" between them. This number represents how similar the name is to the name from the email.[^1]
 4. The higher the "matching rate," the more similar the name and email are to each other. If the matching rate is 100, it means the name and email are exactly the same. If it's 0, it means they are completely different.
 5. The function then returns this matching rate as the result.
+
+[^1]: The matching rate is calculated based on the number of common tokens and their order. It gives higher importance to the order of the tokens because it takes into account the word sequence. For example, let's say the editor's name is "John Doe" and the email address is "doe.john@example.com." The tokenization process would split the name and the email into tokens where, the editor's name tokens are: ["John", "Doe"], and the email name tokens are: ["doe", "john"]. The tokens are then sorted alphabetically for comparison. The function calculates the matching rate based on the number of common tokens and their order between the two strings. Since the tokens have been sorted, it can still find a match even if the original strings have some variations or are in a different order (e.g., "John Doe" vs "doe john"). However, the **matching rate will be higher when the tokens appear in the same order in both strings**. These tokens are then compared to calculate a similarity score between the name and the email.
 
 **Please note!** The code only iterates through a maximum of 10 articles (which can be changed by the user if necessary), and as such, **may not identify the correct email address with 100% accuracy** (or in some cases, will not find an email address at all). A confidence score (i.e., the matching rate) is provided in the final column of the .csv output, where a higher score (maximum 100) indicates a better match between the email address and the editor's name. If possible, it is strongly encouraged that a manual check is performed.
 
