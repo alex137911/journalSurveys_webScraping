@@ -41,7 +41,7 @@ best_match_rate = 0
 best_match_email = ""
 
 # Function to relocate the search bar element
-# Prevent stale element reference exception
+# Necessary to prevent stale element reference exception
 def find_search_bar():
     while True:
         try:
