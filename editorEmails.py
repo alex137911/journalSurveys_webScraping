@@ -201,6 +201,9 @@ for name in editor_names['modifiedName']:
 # Close the browser
 driver.close()
 
+# Remove characters not part of email address (e.g., ".")
+editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.[^.]*$', '', regex = True)
+
 # Create direcotry to store output
 if not os.path.exists("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py"):
     os.mkdir("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py")
