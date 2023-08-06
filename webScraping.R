@@ -14,9 +14,10 @@ suppressMessages(library(tidyr))
 # -------------------------------------------------------------------
 # Specify the base URL pattern
 base_url <- "https://www.sciencedirect.com/browse/journals-and-books?page=%d&contentType=JL&subject=medicine-and-dentistry"
+base_url <- "https://www.sciencedirect.com/browse/journals-and-books?contentType=JL&subject=nursing-and-health-professions"
 
 # Number of pages to scrape
-num_pages <- 20
+num_pages <- 3
 
 # Initialize an empty data table to store the final results
 all_journalData <- data.table()
@@ -91,7 +92,7 @@ for(page_number in 1:num_pages){
 # Editor URLs
 all_journalData$chiefEditor <- NA
 
-for(i in 1728:nrow(all_journalData)){
+for(i in 274:nrow(all_journalData)){
   message(sprintf("%i of %i", i, nrow(all_journalData)))
   editorURL <- all_journalData$journalURL[i]
   
@@ -149,7 +150,7 @@ all_journalData$modifiedName <- NA
 all_journalData$modifiedName <- sub(",.*", "", all_journalData$chiefEditor)
 
 # Drop titles (Dr., Professor, Prof., etc.)
-title_pattern <- "(?i)\\b(?:Dr\\.|Professor|Prof\\.)\\s"
+title_pattern <- "(?i)\\b(?:Dr\\.|Professor|Prof\\.|Assist\\.|Assoc\\.|Mr\\.|Ms\\.|Mrs\\.|PD med\\.)\\s"
 all_journalData$modifiedName <- gsub(title_pattern, "", all_journalData$modifiedName)
 
 # -------------------------------------------------------------------
