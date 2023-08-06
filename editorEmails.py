@@ -76,10 +76,14 @@ driver.get("https://pubmed.ncbi.nlm.nih.gov/")
 search_bar = driver.find_element('xpath','//*[(@id = "id_term")]')
 
 # Subset for testing
-# names_subset = editor_names['modifiedName'][0:3]
+# indexes_to_select = [7, 11, 25, 29, 39, 44, 50, 57, 61, 75, 79, 89, 94, 100, 107, 111, 125, 129, 139, 144]
+# names_subset = editor_names.loc[indexes_to_select, 'modifiedName']
+# names_subset = editor_names['modifiedName'][7]
 # print(names_subset)
 
 # editor_names['modifiedName']
+
+start_time = time.time()
 
 for name in editor_names['modifiedName']:
     print(name)
@@ -100,7 +104,7 @@ for name in editor_names['modifiedName']:
     driver.execute_script("arguments[0].click();", search_button)
     driver.implicitly_wait(10)
 
-    # Check to see if query landed on search page (to deal with edge case where no/one article is found)
+    # Check to see if query landed on search page (to deal with edge case where zero/one article is found)
     try:
         search_results = driver.find_element('xpath','//*[(@id = "search-results")]')
 
@@ -148,7 +152,7 @@ for name in editor_names['modifiedName']:
                 # Initialize list to store email addresses containing best match
                 email_match = []
 
-                # Loop through the email addresses to find those associated with "Peter G. Szilagyi"
+                # Loop through the email addresses
                 for email in email_addresses:
                     # Extract the name from the email address (everything before the "@")
                     name_in_email = email.split("@")[0].strip()
@@ -162,6 +166,18 @@ for name in editor_names['modifiedName']:
                     if match_rate > best_match_rate:
                         best_match_rate = match_rate
                         best_match_email = email
+
+                # Check if the best match rate is 100
+                if best_match_rate == 100:
+                    print("Email address for Editor-in-Chief:", best_match_email)
+                    print("Perfect match found. Skipping remaining articles.")
+
+                    # Add the email address to the DataFrame
+                    editor_names.loc[editor_names['modifiedName'] == name, 'editorEmail'] = str(best_match_email)
+                    
+                    # Add the match rate to the DataFrame
+                    editor_names.loc[editor_names['modifiedName'] == name, 'confidenceScore'] = best_match_rate
+                    break  # Exit the loop
 
                 # Print the email address
                 print("Email address for Editor-in-Chief:", best_match_email)
@@ -197,12 +213,18 @@ for name in editor_names['modifiedName']:
         search_bar.clear()
         continue
 
-# -------------------------------------------------------------------
+# Calculate and print the runtime
+end_time = time.time()
+runtime = end_time - start_time
+print(f"Total runtime: {runtime:.2f} seconds")
+
 # Close the browser
 driver.close()
 
-# Remove characters not part of email address (e.g., ".")
-editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.[^.]*$', '', regex = True)
+# -------------------------------------------------------------------
+# Remove characters not part of email address (e.g., "." at the end of string)
+# editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.[^.]*$', '', regex = True)
+editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.$', '', regex = True)
 
 # Create direcotry to store output
 if not os.path.exists("C:/Users/acale/OneDrive/Documents/Waterloo BME/Co-op/OHRI Research Internship/journalSurveys_webScraping/Data/editorEmails.py"):
