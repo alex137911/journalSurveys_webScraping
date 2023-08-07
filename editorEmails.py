@@ -224,6 +224,10 @@ driver.close()
 # -------------------------------------------------------------------
 # Remove characters not part of email address (e.g., "." at the end of string)
 # editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.[^.]*$', '', regex = True)
+
+rawData = editor_names
+print(rawData)
+
 editor_names['editorEmail'] = editor_names['editorEmail'].str.replace(r'\.$', '', regex = True)
 
 # Create direcotry to store output
