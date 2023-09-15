@@ -48,7 +48,7 @@ Once the *webScraping.R* script has been run to produce the .tsv file, this scri
 [^2]: The confidence score **is not valid to compare across different editors**. It is only meant to find the best possible match per Editor-in-Chief (i.e., it is a comparison score for the emails found within a search for a particular name, where a higher score is better. It is not valid as a comparison **across** different editors).
 
 <ins>Using Chrome WebDriver</ins>
-1. Download Chromedriver: Visit the official Chromedriver download page (https://sites.google.com/a/chromium.org/chromedriver/downloads) and download the appropriate version of Chromedriver that matches your Chrome browser version.
+1. Download Chromedriver: Visit the official Chromedriver download page (https://sites.google.com/chromium.org/driver/?pli=1) and download the appropriate version of Chromedriver that matches your Chrome browser version.
 
 2. Extract Chromedriver: Extract the downloaded Chromedriver executable to a location on your computer.
 
