@@ -14,7 +14,8 @@ suppressMessages(library(tidyr))
 # -------------------------------------------------------------------
 # Specify the base URL pattern
 base_url <- "https://www.sciencedirect.com/browse/journals-and-books?page=%d&contentType=JL&subject=medicine-and-dentistry"
-base_url <- "https://www.sciencedirect.com/browse/journals-and-books?contentType=JL&subject=nursing-and-health-professions"
+base_url <- "https://www.sciencedirect.com/browse/journals-and-books?page=%d&contentType=JL&subject=nursing-and-health-professions"
+base_url <- "https://www.sciencedirect.com/browse/journals-and-books?page=%d&contentType=JL&subject=pharmacology-toxicology-and-pharmaceutical-science"
 
 # Number of pages to scrape
 num_pages <- 3
@@ -92,7 +93,7 @@ for(page_number in 1:num_pages){
 # Editor URLs
 all_journalData$chiefEditor <- NA
 
-for(i in 274:nrow(all_journalData)){
+for(i in 1:nrow(all_journalData)){
   message(sprintf("%i of %i", i, nrow(all_journalData)))
   editorURL <- all_journalData$journalURL[i]
   
