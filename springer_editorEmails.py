@@ -28,9 +28,9 @@ driver = webdriver.Chrome(executable_path=chromedriver_path)
 # Maximize the browser window to make it fullscreen
 driver.maximize_window()
 
-# Initialize CSV file
-with open('springer_biomedicine.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
+# Initialize TSV file
+with open('springer_biomedicine.tsv', 'w', newline = '') as file:
+    writer = csv.writer(file, delimiter = "\t")
     writer.writerow(["journalName", "journalURL", "chiefEditor"])
 
     # Loop through each of the 12 pages
@@ -40,16 +40,28 @@ with open('springer_biomedicine.csv', 'w', newline='') as file:
         # Get all journal links on the current page
         articles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]')
         
-        for article in articles:
-            # Extract journal name
+        # Use an index to loop through articles
+        i = 0
+        while i < len(articles):
+            # "Accept cookies" banner
+            try:
+                banner_button = driver.find_element_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "cc-banner__button-accept", " " ))]')
+                banner_button.click()
+                # Re-fetch the list of articles after closing the banner
+                articles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]')
+            except NoSuchElementException:
+                pass  # If the banner button is not found, just continue
+            
+            # Click on the current article using the index
+            article = articles[i]
             journal_name = article.text
             
-            # Click on the journal link
+            # Click on the current article using the index
             article.click()
             
             # Extract journal URL
             journal_url = driver.current_url
-            
+
             # Locate the element containing the Editor-in-Chief's name
             try:
                 editor_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[contains(concat( " ", @class, " " ), concat( " ", "u-list-inline", " " ))]')))
@@ -57,11 +69,17 @@ with open('springer_biomedicine.csv', 'w', newline='') as file:
             except:
                 chief_editor = "Not Found"
             
-            # Write to CSV
+            # Write to TSV
             writer.writerow([journal_name, journal_url, chief_editor])
             
             # Go back to the list of journals
             driver.back()
+            
+            # Re-fetch the list of articles after navigating back
+            articles = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]')
+            
+            # Increment the index to process the next article
+            i += 1
 
 # Close the browser
 driver.quit()
